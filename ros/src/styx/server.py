@@ -5,9 +5,11 @@ from geventwebsocket.handler import WebSocketHandler
 
 import socketio
 import time
+import rospy
 
 from bridge import Bridge
 from conf import conf
+
 
 sio = socketio.Server(async_mode='gevent')
 msgs = []

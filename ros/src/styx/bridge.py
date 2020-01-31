@@ -179,6 +179,7 @@ class Bridge(object):
     def publish_camera(self, data):
         self.img_count += 1
         if self.img_count >= NUM_IMAGES_TO_SKIP:
+            # rospy.logwarn("Publish camera data")
             imgString = data["image"]
             image = PIL_Image.open(BytesIO(base64.b64decode(imgString)))
             image_array = np.asarray(image)
