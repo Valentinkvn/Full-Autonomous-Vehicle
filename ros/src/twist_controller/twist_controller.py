@@ -36,24 +36,34 @@ class Controller(object):
         # Return throttle, brake, steer
         if not dbw_enabled:
             self.throttle_controller.reset()
-            # used to reset the controller
+            # reset the controller
             return 0.0, 0.0, 0.0
 
+        # filter the current velocity
         current_vel = self.vel_lpf.filt(current_vel)
 
+
+        # get the steering angle from the yaw controller
         steering = self.yaw_controller.get_steering(linear_vel, angular_vel, current_vel)
 
-        # rospy.logwarn("Steering of: %f", steering);
 
+        # get the velocity error from the difference between the target and current
         vel_error = linear_vel - current_vel
+        # update the last velocity with the current one
         self.last_vel = current_vel
 
+
+        # get the current time from system
         current_time = rospy.get_time()
+        # get the time interval between last and current reading
         sample_time = current_time - self.last_time
+        # update the last time with the current one
         self.last_time = current_time
+
 
         throttle = self.throttle_controller.step(vel_error, sample_time)
         brake = 0.0
+
 
         if linear_vel == 0.0 and current_vel < 0.1:
             throttle = 0.0
