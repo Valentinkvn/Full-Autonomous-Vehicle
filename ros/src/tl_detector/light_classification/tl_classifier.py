@@ -54,13 +54,13 @@ class TLClassifier(object):
 
         if scores[0] > self.threshold:
             if classes[0] == 1:
-                rospy.logwarn("Green")
+#                 rospy.logwarn("Green")
                 return TrafficLight.GREEN
             elif classes[0] == 2:
-                rospy.logwarn("Red")
+#                 rospy.logwarn("Red")
                 return TrafficLight.RED
             elif classes[0] == 3:
-                rospy.logwarn("Yellow")
+#                 rospy.logwarn("Yellow")
                 return TrafficLight.YELLOW
 
         return TrafficLight.UNKNOWN

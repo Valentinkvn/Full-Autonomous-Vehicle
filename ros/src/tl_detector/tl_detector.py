@@ -13,6 +13,8 @@ import cv2
 import yaml
 
 STATE_COUNT_THRESHOLD = 3
+state_queue = []
+queue_size = 10
 
 class TLDetector(object):
     def __init__(self):
@@ -54,6 +56,8 @@ class TLDetector(object):
         self.bridge = CvBridge()
         self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
+        
+        self.previous_state = TrafficLight.GREEN
 
         rospy.spin()
 
@@ -101,6 +105,17 @@ class TLDetector(object):
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
         self.state_count += 1
+        
+        # make a queue to be sure that we have a reading without noise
+        if len(state_queue) < queue_size:
+            state_queue.append(state)
+        elif len(state_queue) == queue_size:
+            state_queue.pop(0)
+            state_queue.append(state)
+            
+        rospy.logwarn(state_queue)
+        most_frequent = get_most_frequent(state_queue, len(state_queue))
+        rospy.logwarn(most_frequent)
 
     def get_closest_waypoint(self, x, y):
         """Identifies the closest path waypoint to the given position
@@ -137,7 +152,6 @@ class TLDetector(object):
         #Get classification
         return self.light_classifier.get_classification(cv_image)
 
-
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
             location and color
@@ -151,8 +165,9 @@ class TLDetector(object):
         # List of positions that correspond to the line to stop in front of for a given intersection
         stop_line_positions = self.config['stop_line_positions']
         if(self.pose):
+            # get the car position
             car_wp_idx = self.get_closest_waypoint(self.pose.pose.position.x, self.pose.pose.position.y)
-            #find the closest visible traffic light (if one exists)
+            # find the closest visible traffic light (if one exists)
             diff = len(self.base_waypoints.waypoints)
             for i, light in enumerate(self.lights):
                 # Get stop line waypoint index
@@ -167,10 +182,43 @@ class TLDetector(object):
 
         if closest_light:
             state = self.get_light_state(closest_light)
+            
+            if state != self.previous_state:
+#                 rospy.logwarn("The traffic light at the position %d has the state of: ", line_wp_idx)
+#                 if state == 0:
+# #                     rospy.logwarn("State changed to RED")
+#                 if state == 2:
+# #                     rospy.logwarn("State changed to GREEN")
+#                 if state == 1:
+# #                     rospy.logwarn("State changed to YELLOW")
+#                 if state == 4:
+#                     rospy.logwarn("State changed to UNKNOWN")    
+                self.previous_state = state
             return line_wp_idx, state
 
+        
         return -1, TrafficLight.UNKNOWN
-
+    
+    
+def get_most_frequent(arr, n): 
+  
+    # Insert all elements in Hash. 
+    Hash = dict() 
+    for i in range(n): 
+        if arr[i] in Hash.keys(): 
+            Hash[arr[i]] += 1
+        else: 
+            Hash[arr[i]] = 1
+  
+    # find the max frequency 
+    max_count = 0
+    res = -1
+    for i in Hash:  
+        if (max_count < Hash[i]):  
+            res = i 
+            max_count = Hash[i] 
+          
+    return res 
 if __name__ == '__main__':
     try:
         TLDetector()

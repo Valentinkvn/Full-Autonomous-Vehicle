@@ -50,7 +50,7 @@ class Controller(object):
         # get the velocity error from the difference between the target and current
         vel_error = linear_vel - current_vel
         # update the last velocity with the current one
-        self.last_vel = current_vel
+        self.last_vel = current_vel 
 
 
         # get the current time from system

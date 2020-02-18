@@ -24,7 +24,7 @@ as well as to verify your TL classifier.
 TODO (for Yousuf and Aaron): Stopline location for each traffic light.
 '''
 
-LOOKAHEAD_WPS = 50 # Number of waypoints we will publish. You can change this number
+LOOKAHEAD_WPS = 30 # Number of waypoints we will publish. You can change this number
 RATE_IN_HZ = 10
 MAX_DECEL = .5
 
@@ -59,7 +59,7 @@ class WaypointUpdater(object):
         x = self.pose.pose.position.x
         y = self.pose.pose.position.y
         closest_idx = self.waypoint_tree.query([x, y], 1)[1]
-
+        
         # Check if closest is ahead or behind vehicle
         closest_coord = self.waypoints_2d[closest_idx]
         prev_coord = self.waypoints_2d[closest_idx - 1]
@@ -84,34 +84,42 @@ class WaypointUpdater(object):
 
     def generate_lane(self):
         lane = Lane()
-
+        
         closest_idx = self.get_closest_waypoint_idx()
         farthest_idx = closest_idx + LOOKAHEAD_WPS
         base_waypoints = self.base_lane.waypoints[closest_idx:farthest_idx]
-
+        
+#         rospy.logwarn(self.stopline_wp_idx)
+        
         if self.stopline_wp_idx == -1 or (self.stopline_wp_idx >= farthest_idx):
             lane.waypoints = base_waypoints
         else:
-            # rospy.logwarn("Semaphore ahead")
+#             rospy.logwarn("Semaphore ahead")
+#             rospy.logwarn(self.decelerate_waypoints(base_waypoints, closest_idx))
             lane.waypoints = self.decelerate_waypoints(base_waypoints, closest_idx)
 
         return lane
 
     def decelerate_waypoints(self, waypoints, closest_idx):
         temp = []
+#         rospy.logwarn("WFTSG")
         for i, wp in enumerate(waypoints):
             p = Waypoint()
             p.pose = wp.pose
 
-            stop_idx = max(self.stopline_wp_idx - closest_idx - 5, 0) # 5 waypoints back so the car stops at the line
-            dist = self.distance(waypoints, i, stop_idx)
-            vel = math.sqrt(2 * MAX_DECEL * dist)
-            if vel < 1.0:
-                vel = 0.0
+            stop_idx = max(self.stopline_wp_idx - closest_idx - 2, 0) # 5 waypoints back so the car stops at the line
+          
+            if stop_idx >= 0:
+#                 rospy.logwarn(stop_idx)
+                dist = self.distance(waypoints, i, stop_idx)
+                vel = math.sqrt(2 * MAX_DECEL * dist)
+                if vel < 1.0:
+                    vel = 0.0
 
-            # set the speed limit
-            p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
-            temp.append(p)
+                # set the speed limit
+                p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
+                temp.append(p)
+            
 
         return temp
 
