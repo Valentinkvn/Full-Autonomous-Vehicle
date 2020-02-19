@@ -93,18 +93,6 @@ class TLDetector(object):
         of times till we start using it. Otherwise the previous stable state is
         used.
         '''
-        # be sure that we don't have noise in the light states
-        if self.state != state:
-            self.state_count = 0
-            self.state = state
-        elif self.state_count >= STATE_COUNT_THRESHOLD:
-            self.last_state = self.state
-            light_wp = light_wp if state == TrafficLight.RED else -1
-            self.last_wp = light_wp
-            self.upcoming_red_light_pub.publish(Int32(light_wp))
-        else:
-            self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-        self.state_count += 1
         
         # make a queue to be sure that we have a reading without noise
         if len(state_queue) < queue_size:
@@ -113,9 +101,33 @@ class TLDetector(object):
             state_queue.pop(0)
             state_queue.append(state)
             
-        rospy.logwarn(state_queue)
-        most_frequent = get_most_frequent(state_queue, len(state_queue))
-        rospy.logwarn(most_frequent)
+#         rospy.logwarn(state_queue)
+        most_frequent_state = get_most_frequent(state_queue, len(state_queue))
+#         rospy.logwarn(most_frequent_state)
+        
+        
+        if self.state != most_frequent_state:
+            self.state = most_frequent_state
+            
+        if self.state != TrafficLight.RED:
+            light_wp = -1
+#         rospy.logwarn(light_wp)
+        self.upcoming_red_light_pub.publish(Int32(light_wp))
+        
+#         # be sure that we don't have noise in the light states
+#         if self.state != state:
+#             self.state_count = 0
+#             self.state = state
+#         elif self.state_count >= STATE_COUNT_THRESHOLD:
+#             self.last_state = self.state
+#             light_wp = light_wp if state == TrafficLight.RED else -1
+#             self.last_wp = light_wp
+#             self.upcoming_red_light_pub.publish(Int32(light_wp))
+#         else:
+#             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
+#         self.state_count += 1
+        
+        
 
     def get_closest_waypoint(self, x, y):
         """Identifies the closest path waypoint to the given position
