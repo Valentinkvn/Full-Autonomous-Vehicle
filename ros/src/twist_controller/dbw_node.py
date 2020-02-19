@@ -131,6 +131,7 @@ class DBWNode(object):
         bcmd.pedal_cmd = brake
         self.brake_pub.publish(bcmd)
 
+            
 
 if __name__ == '__main__':
     DBWNode()
