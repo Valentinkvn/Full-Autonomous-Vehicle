@@ -34,14 +34,18 @@ To build a working environment having all the data provided by the car/simulator
 This node provides the control of the car. 
 
 This node had subscription to three topics:
+```
 - /current_velocity
 - /twist_cmd
 - /vehicle/dbw_enabled
+```
 
 Also, this node provides information for three another topics using publishing method:
+```
 - /vehicle/throttle_cmd
 - /vehicle/steering_cmd
 - /vehicle/brake_cmd
+```
 
 <p align="center">
   <img src="../img/dbw-node-ros-graph.png">
@@ -58,13 +62,17 @@ The control was modeled using three controllers and a filter:
 This node provides information about the color states of the Traffic Lights.
 
 This node had subscription to four topics:
+```
 - /base_waypoints
 - /image_color
 - /current_pose
 - /vehicle/traffic_lights
+```
 
 Also, this node provides information for one another topic using publishing method:
+```
 - /traffic_waypoint
+```
 
 <p align="center">
   <img src="../img/tl-detector-ros-graph.png">
@@ -86,6 +94,19 @@ Also, to have a smoother running the images that enter in Neural Networks infere
 ### Waypoint Updater node
 
 This node provides information about the path that the car will follow.
+
+This node had subscription to four topics:
+```
+- /base_waypoints
+- /current_velocity
+- /traffic_waypoints
+- /current_pose
+```
+
+Also, this node provides information for one another topic using publishing method:
+```
+- /final_waypoints
+```
 
 <p align="center">
   <img src="../img/waypoint-updater-ros-graph.png">
@@ -117,7 +138,7 @@ Here, I had different approaches with different functions that were tested as it
   <img width="400" src="../img/Deceleration Functions.png">
 </p>
 
-The final solution provides a combination of the first and the third tested solutions to have a smooth deceleration
+The final solution provides a combination of the first (the linear deceleration) and the third (the sqrt deceleration) tested solutions to have a smooth deceleration.
 
 
 
