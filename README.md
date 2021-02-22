@@ -1,8 +1,10 @@
-# Udacity Full Autonomous Vehicle Project
+## Full Autonomous Vehicle Project
 
 This is the project documentation for the Full Autonomous Vehicle Project provided by the Udacity Self Driving Car nanodegree.
 
-The project aims to implement a full autonomous ROS based system.
+The project aims to implement a full autonomous ROS based system capable on working in a controlled environment produced by a Udacity licensed simulator.
+
+To see more information about different details of the implementation, please go to <strong><em>/docs/Documentation.md</em></strong>
 
 ## Getting started
 
@@ -232,8 +234,3 @@ Specific to these libraries, the simulator grader and Carla use the following:
 | OpenMP | N/A | N/A |
 
 We are working on a fix to line up the OpenCV versions between the two.
-
-### Team Members
-| Name | Email  |
-| :-----------: |:-------------:|
-| Pătrașcu Alexandru Valentin | alexandru.patrascu@wipro.com |
